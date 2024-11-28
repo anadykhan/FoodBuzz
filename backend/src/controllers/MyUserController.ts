@@ -1,6 +1,20 @@
 import { Request, Response } from "express";
 import User from "../models/user";
 
+const getCurrentUser = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const currentUser = await User.findOne({ _id: req.userId });
+
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    res.json(currentUser);
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong!" });
+  }
+};
+
 const createCurrentUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const { auth0Id } = req.body;
@@ -28,11 +42,11 @@ const createCurrentUser = async (req: Request, res: Response): Promise<any> => {
 
 const updateCurrentUser = async (req: Request, res: Response): Promise<any> => {
   try {
-    const {name, addressLine1, country, city} = req.body;
+    const { name, addressLine1, country, city } = req.body;
     const user = await User.findById(req.userId);
-    
-    if(!user) {
-      return res.status(404).json(({message: "User not exists!"}));
+
+    if (!user) {
+      return res.status(404).json({ message: "User not exists!" });
     }
 
     user.name = name;
@@ -43,13 +57,14 @@ const updateCurrentUser = async (req: Request, res: Response): Promise<any> => {
     await user.save();
 
     res.send(user);
-  } catch(error) {
+  } catch (error) {
     console.log(error);
-    res.status(500).json({message: "Error updating user!"});
+    res.status(500).json({ message: "Error updating user!" });
   }
-}
+};
 
 export default {
+  getCurrentUser,
   createCurrentUser,
   updateCurrentUser,
 };
